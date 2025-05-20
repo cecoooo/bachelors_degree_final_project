@@ -1,27 +1,92 @@
-# Ignore build folders
-/build/
-/out/
-
-# Ignore compiled binaries and object files
+# === General build artifacts ===
 *.o
 *.obj
-*.exe
-*.dll
 *.so
 *.a
-*.lib
+*.out
+*.lo
+*.la
+*.al
+*.exe
+*.dll
 
-# Ignore system files
-.DS_Store
-Thumbs.db
+# === Build system folders ===
+/build/
+/cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+Makefile
+CTestTestfile.cmake
+cmake_install.cmake
+install_manifest.txt
 
-# Ignore IDE/editor configs
+# === Editor/IDE junk ===
+# VS Code
 .vscode/
-.idea/
-*.swp
-*.sublime-workspace
-*.sublime-project
+*.code-workspace
 
-# Ignore Python cache (if any Python scripts)
+# JetBrains (CLion, etc.)
+.idea/
+*.iml
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim/Emacs/Shell
+*~
+*.swp
+*.swo
+*.swn
+.nfs*
+.#*
+
+# === Logs, backups, core dumps ===
+*.log
+*.bak
+*.tmp
+*.temp
+*.old
+*.orig
+core
+*.core
+*.pid
+
+# === Python cache (if Python scripts used) ===
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+
+# === System and metadata files ===
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# === Archive/Package files ===
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.rar
+*.7z
+*.deb
+*.rpm
+
+# === Other common temporary artifacts ===
+*.out
+*.class
+*.jar
+*.war
+*.tmp
+
+# === User/environment config ===
+.env
+.env.local
+*.user
+*.cfg
+*.ini
+
+# === Git ignored itself ===
+.gitignore
