@@ -11,7 +11,7 @@
 *.dll
 
 # === Build system folders ===
-/build/
+build/
 /cmake-build-*/
 CMakeFiles/
 CMakeCache.txt
