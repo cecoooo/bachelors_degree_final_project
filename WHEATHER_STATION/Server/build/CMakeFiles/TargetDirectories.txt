@@ -1,0 +1,3 @@
+C:/Users/User/Desktop/TU/ДИПЛОМНА РАБОТА/WHEATHER_STATION/Server/build/CMakeFiles/WEATHER_STATION.dir
+C:/Users/User/Desktop/TU/ДИПЛОМНА РАБОТА/WHEATHER_STATION/Server/build/CMakeFiles/ALL_BUILD.dir
+C:/Users/User/Desktop/TU/ДИПЛОМНА РАБОТА/WHEATHER_STATION/Server/build/CMakeFiles/ZERO_CHECK.dir
