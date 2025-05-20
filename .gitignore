@@ -1,0 +1,27 @@
+# Ignore build folders
+/build/
+/out/
+
+# Ignore compiled binaries and object files
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.a
+*.lib
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE/editor configs
+.vscode/
+.idea/
+*.swp
+*.sublime-workspace
+*.sublime-project
+
+# Ignore Python cache (if any Python scripts)
+__pycache__/
+*.pyc
