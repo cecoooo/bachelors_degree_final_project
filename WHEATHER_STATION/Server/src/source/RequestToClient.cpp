@@ -68,7 +68,7 @@ void RequestToClient::seeListOfAllClients() {
             if (res == 'y') {
                 m_printer.serverSwitchedOffMessage();
                 m_container.removeAllClients();
-                m_shutdownRequested = true;  // ✅ mark request to shut down
+                m_shutdownRequested = true;  // mark request to shut down
                 return;
             } else if (res == 'n') {
                 break;
