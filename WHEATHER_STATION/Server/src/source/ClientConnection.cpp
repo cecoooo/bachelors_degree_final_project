@@ -113,3 +113,7 @@ bool ClientConnection::checkIsFileOpen() {
     }
     return true;
 }
+
+void ClientConnection::closeConnection() {
+    closesocket(m_clientSocket);
+}

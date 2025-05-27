@@ -86,3 +86,7 @@ void Printer::invalidCommandOrLostConnectionMessage(){
 void Printer::noConnectedClientsAtTheMoment() {
     std::cout << "No connected clients at the moment." << std::endl;
 }
+
+void Printer::notANumberTryAgain() {
+    std::cout << "Not a number. Try again." << std::endl;
+}

@@ -9,6 +9,7 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include <memory>
 
 #include "ClientConnection.hpp"
 #include "ClientContainer.hpp"
@@ -42,15 +43,16 @@ private:
     int bindTheSocket();
     int listeningForConnections();
     void acceptConnections(ClientContainer& clientContainer);
-    void listenForRequest(ClientContainer& clientContainer);
-    unsigned short SAMPLE_PERIOD{32000};
-    void waitForMessageFromClient(ClientContainer&, CustomLogGuard&, ClientConnection*);
+    static void waitForMessageFromClient(ClientContainer&, CustomLogGuard&, std::shared_ptr<ClientConnection>);
+    static void handleClient(SOCKET, ClientContainer&, CustomLogGuard&);
     CustomLogGuard m_DownLock;
     Printer m_printer;
+    std::thread m_requestThread;
+    std::atomic<bool> m_shouldStop{false};
+    void requestShutdown();
 public:
     ~Server();
     void start(ClientContainer& clientContainer);
 };
 
-
-#endif //UNTITLED_SERVER_H
+#endif // UNTITLED_SERVER_H

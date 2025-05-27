@@ -1,125 +1,161 @@
-//
-// Created by User on 21/04/2024.
-//
-
 #include "RequestToClient.hpp"
 #include <limits>
 #include <ios>
+#include <algorithm>
 
 #define FLAGS 0
 #define SOCKET_DEFAULT_PROTOCOL 0
 #define TRESHOLD_FLOOR 500
 #define EXIT_CODE 0
 
-RequestToClient::RequestToClient(ClientContainer &clientContainer, CustomLogGuard& lock): m_container{clientContainer}
-        , m_downLock{lock} {}
+RequestToClient::RequestToClient(ClientContainer& clientContainer, CustomLogGuard& lock)
+    : m_container{clientContainer}, m_downLock{lock} {}
 
-void RequestToClient::sentTypeOfCommand(int num, ClientConnection *connection){
+void RequestToClient::sentTypeOfCommand(int num, const std::shared_ptr<ClientConnection>& connection) {
     char buff[1];
     buff[0] = m_commandMapper[num];
     send(connection->getClientSocket(), buff, sizeof(buff), FLAGS);
 }
 
-void RequestToClient::setSamplePeriod(ClientConnection *connection){
+void clearInputBuffer(){
+    Printer printer;
+    printer.notANumberTryAgain();
+    std::cin.clear();
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+}
+
+void RequestToClient::setSamplePeriod(const std::shared_ptr<ClientConnection>& connection) {
     unsigned short samplePeriod;
-    while(true) {
+    while (true) {
         m_printer.enterNumberBetween1And65535Message();
-        if((std::cin >> samplePeriod))
+        if ((std::cin >> samplePeriod))
             break;
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        clearInputBuffer();
     }
     connection->sentUnsignedShort(samplePeriod);
 }
 
-void RequestToClient::setTreshold(ClientConnection *connection){
+void RequestToClient::setTreshold(const std::shared_ptr<ClientConnection>& connection) {
     unsigned short treshold;
-    while(true) {
+    while (true) {
         m_printer.enterNumberBetween0And500Message();
-        if((std::cin >> treshold)) {
-           if(treshold > TRESHOLD_FLOOR)
-               continue;
-           break;
+        if ((std::cin >> treshold)) {
+            if (treshold > TRESHOLD_FLOOR)
+                continue;
+            break;
         }
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        clearInputBuffer();
     }
     connection->sentUnsignedShort(treshold);
 }
 
-void RequestToClient::seeListOfAllClients(){
+void RequestToClient::seeListOfAllClients() {
     int initialInput;
-    m_printer.seeListOfAllClientsMessage();
-    std::cin >> initialInput;
-    if(initialInput == 0){
+
+    while (true) {
+        m_printer.seeListOfAllClientsMessage();
+        if ((std::cin >> initialInput)) {
+            break;
+        }
+        clearInputBuffer();
+    }
+
+    if (initialInput == 0) {
         char res;
         m_printer.areYouSureYouWantToStopTheServerMessage();
-        while(true) {
+        while (true) {
             std::cin >> res;
-            if (res == 'y'){
+            if (res == 'y') {
                 m_printer.serverSwitchedOffMessage();
                 m_container.removeAllClients();
-                exit(EXIT_CODE);
-            }
-            else if (res == 'n')
+                m_shutdownRequested = true;  // ✅ mark request to shut down
+                return;
+            } else if (res == 'n') {
                 break;
-            else
+            } else {
                 m_printer.commandUnrecognizedMessage();
+            }
         }
     }
-    if(m_container.size() != 0)
+
+    if (m_container.size() != 0)
         m_container.showClients();
     else
         m_printer.noConnectedClientsAtTheMoment();
 }
 
-ClientConnection* RequestToClient::getCurrentConnection(){
+
+std::shared_ptr<ClientConnection> RequestToClient::getCurrentConnection() {
     int socketNumber;
-    ClientConnection* connection = nullptr;
-    m_printer.enterNumberOfClientYouWantToCommunicateMessage();
-    std::cin >> socketNumber;
-    int size = m_container.size();
-    for (int i = 0; i < size; ++i) {
-        if(socketNumber == m_container.getClients()[i]->getSocketNumber())
-            connection = m_container.getClients()[i];
+    while (true) {
+        m_printer.enterNumberOfClientYouWantToCommunicateMessage();
+        if ((std::cin >> socketNumber)) {
+            break;
+        }
+        clearInputBuffer();
     }
-    return connection;
+
+    auto clients = m_container.getClients(); // copy is safe
+    for (const auto& client : clients) {
+        if (client && client->getSocketNumber() == socketNumber)
+            return client;
+    }
+
+    return nullptr;
 }
 
-int RequestToClient::typeCommandToClient(){
+int RequestToClient::typeCommandToClient() {
     int commandToClient;
-    m_printer.whatDoYouWantToDoMessage();
-    std::cin >> commandToClient;
+    while (true) {
+        m_printer.whatDoYouWantToDoMessage();
+        if ((std::cin >> commandToClient)) {
+            if (commandToClient < 0 || commandToClient > 3){
+                m_printer.invalidCommandOrLostConnectionMessage();
+                continue;
+            }
+            break;
+        }
+        clearInputBuffer();
+    }
     return commandToClient;
 }
 
-void RequestToClient::downloadLogs(ClientConnection* connection){
+void RequestToClient::downloadLogs(const std::shared_ptr<ClientConnection>& connection) {
     connection->downloadLog();
 }
 
 void RequestToClient::waitForRequest() {
-    while(true){
+    while (!m_shutdownRequested) {
         seeListOfAllClients();
-        if(m_container.size() == 0)
+        if (m_shutdownRequested || m_container.size() == 0)
             continue;
-        ClientConnection* connection = getCurrentConnection();
-        if(connection == nullptr){
+
+        auto connection = getCurrentConnection();
+        if (!connection) {
             m_printer.clientWithThisNumberDoesNotExistsInTheListMessage();
             continue;
         }
+
         int commandToClient = typeCommandToClient();
         sentTypeOfCommand(commandToClient, connection);
-        std::unique_lock <std::mutex> ul(m_downLock.g_mutex);
-        m_downLock.g_cv.wait(ul, [toChange=m_downLock.g_ready](){return toChange == false;});
+
+        std::unique_lock<std::mutex> ul(m_downLock.g_mutex);
+        m_downLock.g_cv.wait(ul, [toChange = m_downLock.g_ready]() { return toChange == false; });
+
         switch (commandToClient) {
             case 0: setSamplePeriod(connection); break;
             case 1: setTreshold(connection); break;
             case 2: break;
             case 3: downloadLogs(connection); break;
-            default: m_printer.invalidCommandOrLostConnectionMessage(); break;
         }
+
         m_downLock.g_ready = !m_downLock.g_ready;
         ul.unlock();
         m_downLock.g_cv.notify_all();
     }
 }
+
+bool RequestToClient::shouldShutdown() const {
+    return m_shutdownRequested;
+}
+

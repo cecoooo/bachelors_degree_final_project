@@ -38,6 +38,7 @@ public:
     SOCKET getClientSocket();
     void downloadLog();
     void saveNotificationData(const char buff[]);
+    void closeConnection();
 };
 
 

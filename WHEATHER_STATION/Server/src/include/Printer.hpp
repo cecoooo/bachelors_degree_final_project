@@ -29,6 +29,7 @@ public:
     void clientWithThisNumberDoesNotExistsInTheListMessage();
     void invalidCommandOrLostConnectionMessage();
     void noConnectedClientsAtTheMoment();
+    void notANumberTryAgain();
 };
 
 

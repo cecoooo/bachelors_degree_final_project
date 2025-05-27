@@ -2,8 +2,7 @@
 
 int main() {
     ClientContainer clientContainer;
-    Server *server = new Server();
-    server->start(std::ref(clientContainer));
-    delete server;
+    Server server;
+    server.start(clientContainer);
     return 0;
 }

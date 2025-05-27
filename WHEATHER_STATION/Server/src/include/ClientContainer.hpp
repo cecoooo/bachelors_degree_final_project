@@ -1,29 +1,26 @@
-//
-// Created by User on 21/04/2024.
-//
-
 #ifndef BOSCH_PROJECT_CLIENTCONTAINER_H
 #define BOSCH_PROJECT_CLIENTCONTAINER_H
 
 #include <vector>
-#include "ClientConnection.hpp"
-#include <iostream>
+#include <memory>
 #include <mutex>
 #include <algorithm>
+#include <iostream>
+#include "ClientConnection.hpp"
 #include "CustomMutex.hpp"
 
 class ClientContainer {
 private:
-    std::vector<ClientConnection*> m_clients;
+    std::vector<std::shared_ptr<ClientConnection>> m_clients;
     std::mutex m_containerMutex;
+
 public:
-    void add(ClientConnection *cl);
+    void add(const std::shared_ptr<ClientConnection>& cl);
     void showClients();
     int size();
-    std::vector<ClientConnection*> getClients();
-    void removeClient(ClientConnection*);
+    std::vector<std::shared_ptr<ClientConnection>> getClients();
+    void removeClient(const std::shared_ptr<ClientConnection>& clientConnection);
     void removeAllClients();
 };
 
-
-#endif //BOSCH_PROJECT_CLIENTCONTAINER_H
+#endif // BOSCH_PROJECT_CLIENTCONTAINER_H
