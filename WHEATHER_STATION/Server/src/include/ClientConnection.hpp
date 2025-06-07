@@ -1,45 +1,50 @@
-#ifndef BOSCH_PROJECT_CLIENTCONNECTION_H
-#define BOSCH_PROJECT_CLIENTCONNECTION_H
+#pragma once
 
-#include <winsock.h>
-#include <iostream>
-#include <fstream>
-#include <mutex>
+#include <winsock2.h>
 #include <string>
-#include <cstdio>
+#include <fstream>
+#include <atomic>
+#include <mutex>
+// detede #include <iostream> after all tests
+#include <iostream>
+#include <QByteArray>
 
-#include "ClientData.hpp"
-#include "FileOpeningException.hpp"
-#include "Printer.hpp"
-#include "CustomMutex.hpp"
+#include "DatabaseGlobal.hpp"
 
-#define BUFFER_SIZE 64
-#define FLAGS 0
-#define RESPONSE_SIZE 1
-#define SAMPLE_PERIOD_SIZE 2
-#define STRUCTURE_SIZE 20
-#define DATA_DIR_PATH "../../client_data/"
 
-class ClientConnection {
-private:
-    SOCKET m_clientSocket;
-    void sentDataQualityResponse(int);
-    std::ofstream m_fileWriteStructure;
-    std::string m_fileName;
-    std::mutex m_mtx;
-    Printer m_printer;
-    bool checkIsFileOpen();
-public:
-    ClientConnection(SOCKET);
-    ~ClientConnection();
-    int getSocketNumber();
-    void sentUnsignedShort(unsigned short);
-    void getClientData();
-    SOCKET getClientSocket();
-    void downloadLog();
-    void saveNotificationData(const char buff[]);
-    void closeConnection();
+#pragma pack(push, 1)
+struct ClientData {
+    double latitude;
+    double longitude;
+    short aqi;
+    short temperature;
+};
+#pragma pack(pop)
+
+struct ReceiveResult {
+    bool exitRequested = false;
 };
 
+class ClientConnection {
+public:
+    explicit ClientConnection(SOCKET socket);
+    ~ClientConnection();
 
-#endif
+    bool isConnected() const;
+    SOCKET socket() const;
+
+    ReceiveResult receiveData();
+    void sendCommand(char commandId, const QByteArray& payload);
+    void close();
+
+    void saveMeasurement(const ClientData& data, bool isInitialData = false);
+    void sentDataQualityResponse(int bytesReceived);
+
+private:
+    SOCKET m_socket;
+    std::atomic<bool> m_connected;
+    std::ofstream m_outputFile;
+    std::string m_filename;
+    std::mutex m_fileMutex;
+};
+

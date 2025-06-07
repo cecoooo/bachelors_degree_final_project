@@ -1,8 +1,9 @@
-#include "Server.hpp"
+#include <QApplication>
+#include "mainwindow.hpp"
 
-int main() {
-    ClientContainer clientContainer;
-    Server server;
-    server.start(clientContainer);
-    return 0;
+int main(int argc, char *argv[]) {
+    QApplication app(argc, argv);
+    MainWindow w;
+    w.show();
+    return app.exec();
 }

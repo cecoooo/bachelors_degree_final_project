@@ -1,51 +1,68 @@
 #include "ClientConnection.hpp"
+#include <cstring>
+#include <winsock2.h>
 
-ClientConnection::ClientConnection(SOCKET cs){
-    m_clientSocket = cs;
-    m_fileName = DATA_DIR_PATH + std::to_string(this->getSocketNumber()) + "_ClientFile.txt";
+#define BUFFER_SIZE 64
+#define STRUCTURE_SIZE 20
+#define FLAGS 0
+#define RESPONSE_SIZE 1
+
+ClientConnection::ClientConnection(SOCKET socket)
+    : m_socket(socket), m_connected(true) {
+    m_filename = "../client_data/" + std::to_string(socket) + "_ClientFile.txt";
 }
 
 ClientConnection::~ClientConnection() {
-    std::remove(m_fileName.c_str());
-    closesocket(m_clientSocket);
-    //WSACleanup();
+    close();
 }
 
-void ClientConnection::getClientData() {
-    // create buffer for data
-    char buffer[STRUCTURE_SIZE];
-    memset(buffer, 0, sizeof(buffer));
-
-    // receive data
-    int bytesReceived = recv(m_clientSocket, buffer, sizeof(buffer), FLAGS);
-
-    //sent 0 for OK, 1 for error
-    sentDataQualityResponse(bytesReceived);
-
-    if(bytesReceived < STRUCTURE_SIZE)
-        return;
-
-    CustomMutex ctsMtx(m_mtx);
-    ClientData cd;
-    memcpy(&cd, buffer, sizeof(buffer));
-
-    m_fileWriteStructure.open(m_fileName,std::ios_base::app);
-    if(!checkIsFileOpen())
-        return;
-    m_fileWriteStructure << "starting data:" << std::endl;
-    m_fileWriteStructure << cd.latitude << "/";
-    m_fileWriteStructure << cd.longitude << "/";
-    m_fileWriteStructure << cd.AQI << "/";
-    m_fileWriteStructure << cd.temperature << std::endl;
-    m_fileWriteStructure.close();
+bool ClientConnection::isConnected() const {
+    return m_connected;
 }
 
-void ClientConnection::sentUnsignedShort(unsigned short period) {
-    char samplePeriod[SAMPLE_PERIOD_SIZE];
-    unsigned short sp = period;
-    unsigned short sp1 = htons(sp);
-    memcpy(samplePeriod, &sp1, sizeof(short));
-    send(m_clientSocket, samplePeriod, sizeof(short), FLAGS);
+SOCKET ClientConnection::socket() const {
+    return m_socket;
+}
+
+void ClientConnection::sendCommand(char commandId, const QByteArray& payload) {
+    send(m_socket, &commandId, 1, 0);
+    if (!payload.isEmpty()) {
+        if ((commandId == '0' || commandId == '1') && payload.size() == sizeof(unsigned short)) {
+            unsigned short value;
+            std::memcpy(&value, payload.data(), sizeof(unsigned short));
+            unsigned short netValue = htons(value);
+            send(m_socket, reinterpret_cast<const char*>(&netValue), sizeof(unsigned short), 0);
+        } else {
+            send(m_socket, payload.data(), payload.size(), 0);
+        }
+    }
+}
+
+void ClientConnection::close() {
+    if (m_connected) {
+        closesocket(m_socket);
+        m_connected = false;
+        if (m_outputFile.is_open()) 
+            m_outputFile.close();
+        std::remove(m_filename.c_str());
+    }
+}
+
+void ClientConnection::saveMeasurement(const ClientData& data, bool isInitialData) {
+    std::lock_guard<std::mutex> lock(m_fileMutex);
+    m_outputFile.open(m_filename, std::ios::out | std::ios::app);
+    if (!m_outputFile.is_open()) return;
+    if(isInitialData) m_outputFile << "first measurement" << std::endl;
+    m_outputFile << data.latitude << "/" << data.longitude << "/"
+                 << data.aqi << "/" << data.temperature << std::endl;
+    if(isInitialData) m_outputFile << "=================" << std::endl;
+    m_outputFile.close();
+    // FOR DB
+
+    if(!g_dbManager.insertNotification(static_cast<int>(m_socket), data.latitude, data.longitude, data.temperature, data.aqi))
+    {
+        std::cout << "failure while saving notification" << std::endl;
+    }
 }
 
 void ClientConnection::sentDataQualityResponse(int bytesReceived){
@@ -55,65 +72,79 @@ void ClientConnection::sentDataQualityResponse(int bytesReceived){
     } else {
         response[0] = '0';
     }
-    send(m_clientSocket, response, sizeof(response), FLAGS);
+    send(m_socket, response, sizeof(response), FLAGS);
 }
 
-SOCKET ClientConnection::getClientSocket() {
-    return m_clientSocket;
-}
+ReceiveResult ClientConnection::receiveData() {
+    ReceiveResult result;
+    char buffer[BUFFER_SIZE] = {};
 
-int ClientConnection::getSocketNumber() {
-    return static_cast<int>(m_clientSocket);
-}
+    int ret = recv(m_socket, buffer, sizeof(buffer), FLAGS);
 
-void ClientConnection::downloadLog(){
-    char buffer[BUFFER_SIZE] = {0};
-    CustomMutex ctsMtx(m_mtx);
-    m_fileWriteStructure.open(m_fileName, std::ios_base::app);
-    if(!checkIsFileOpen())
-        return;
-    m_fileWriteStructure << "Requested data:" << std::endl;
-    while(true){
-        memset(buffer, 0, sizeof(buffer));
-        int bytesReceived = recv(m_clientSocket, buffer, sizeof(buffer), FLAGS);
-        if (bytesReceived <= 0) {
-            break;
-        }
-        if(std::string(buffer, 0, bytesReceived) == "end"){
-            break;
-        }
-        m_fileWriteStructure << std::string(buffer, 0, bytesReceived) << std::endl;
-        send(m_clientSocket, buffer, sizeof(buffer), FLAGS);
+
+    if (ret <= 0) {
+        result.exitRequested = true;
+        return result;
     }
-    m_fileWriteStructure.close();
-}
 
-void ClientConnection::saveNotificationData(const char buff[]) {
-    CustomMutex ctsMtx(m_mtx);
-    ClientData cd;
-    memcpy(&cd, buff, sizeof(cd));
-    m_fileWriteStructure.open(m_fileName, std::ios_base::app);
-    if(!checkIsFileOpen())
-        return;
-    m_fileWriteStructure << "Notification data:" << std::endl;
-    m_fileWriteStructure << cd.latitude << "/";
-    m_fileWriteStructure << cd.longitude << "/";
-    m_fileWriteStructure << cd.AQI << "/";
-    m_fileWriteStructure << cd.temperature << std::endl;
-    m_fileWriteStructure.close();
-}
+    std::string message(buffer, 0, ret);
 
-bool ClientConnection::checkIsFileOpen() {
-    if (!m_fileWriteStructure.is_open()) {
-        try {
-            throw FileOpeningException(m_printer.cantOpenFile());
-        }catch (FileOpeningException& ex){
-            return false;
-        }
+    if (message == "exit") {
+        // char dummy[4];
+        // recv(m_socket, dummy, 4, 0);  // consume "exit"
+        result.exitRequested = true;
+        return result;
     }
-    return true;
-}
+    if (message == "0") {
+        return result;
+    }
+    if (message == "1") {
+        // char dummy[1];
+        // recv(m_socket, dummy, 1, 0);
+        result.exitRequested = true;
+        return result;
+    }
+    if (ret == STRUCTURE_SIZE) {
+        ClientData data;
+        std::memcpy(&data, buffer, STRUCTURE_SIZE);
+        saveMeasurement(data);
+        return result;
+    }
 
-void ClientConnection::closeConnection() {
-    closesocket(m_clientSocket);
+    {
+        std::lock_guard<std::mutex> lock(m_fileMutex);
+        m_outputFile.open(m_filename, std::ios::out | std::ios::app);
+        if (!m_outputFile.is_open()) 
+        {
+            result.exitRequested = true;
+            return result;
+        }
+
+        m_outputFile << "Requested data:" << std::endl;
+        m_outputFile << std::string(buffer, 0, ret) << std::endl;
+        send(m_socket, buffer, sizeof(buffer), 0);
+        
+        
+        while (true) {
+            memset(buffer, 0, sizeof(buffer));
+            int bytesReceived = recv(m_socket, buffer, sizeof(buffer), 0);
+            if (bytesReceived <= 0) break;
+
+            if (std::string(buffer, 0, bytesReceived) == "end") break;
+
+            m_outputFile << std::string(buffer, 0, bytesReceived) << std::endl;
+
+            if(!g_dbManager.insertRequestedRecording(static_cast<int>(m_socket), std::string(buffer, 0, bytesReceived)))
+            {
+                std::cout << "failure while saving requested data" << std::endl;
+            }
+            
+            send(m_socket, buffer, sizeof(buffer), 0);
+            // FOR DB
+        }
+
+        m_outputFile.close();
+    }
+
+    return result;
 }

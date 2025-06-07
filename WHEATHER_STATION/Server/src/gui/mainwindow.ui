@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect><x>0</x><y>0</y><width>600</width><height>700</height></rect>
+  </property>
+  <property name="windowTitle">
+   <string>Server GUI</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,0,1,0">
+    <item>
+     <widget class="QGroupBox" name="clientGroupBox">
+      <property name="title">
+       <string>Connected Clients</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QListWidget" name="clientListWidget"/>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="sampleTimeLayout">
+      <item><widget class="QLabel" name="labelSample"><property name="text"><string>Sample Time:</string></property></widget></item>
+      <item><widget class="QLineEdit" name="sampleTimeEdit"/></item>
+      <item><widget class="QPushButton" name="setSampleTimeBtn"><property name="text"><string>Set</string></property></widget></item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="thresholdLayout">
+      <item><widget class="QLabel" name="labelThreshold"><property name="text"><string>AQI Threshold:</string></property></widget></item>
+      <item><widget class="QLineEdit" name="thresholdEdit"/></item>
+      <item><widget class="QPushButton" name="setThresholdBtn"><property name="text"><string>Set</string></property></widget></item>
+     </layout>
+    </item>
+    <item><widget class="QPushButton" name="resetLogBtn"><property name="text"><string>Reset Log</string></property></widget></item>
+    <item><widget class="QPushButton" name="downloadLogBtn"><property name="text"><string>Download Log</string></property></widget></item>
+    <item><widget class="QPushButton" name="showDataBtn"><property name="text"><string>Show Data from Client</string></property></widget></item>
+    <item>
+     <widget class="QTextEdit" name="databaseTextDisplay">
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="serverControlLayout">
+      <item><widget class="QPushButton" name="startButton"><property name="text"><string>Start Server</string></property></widget></item>
+      <item>
+       <spacer name="spacer">
+        <property name="orientation"><enum>Qt::Horizontal</enum></property>
+        <property name="sizeHint"><size><width>20</width><height>20</height></size></property>
+       </spacer>
+      </item>
+      <item><widget class="QPushButton" name="shutdownBtn"><property name="text"><string>Shutdown Server</string></property></widget></item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
