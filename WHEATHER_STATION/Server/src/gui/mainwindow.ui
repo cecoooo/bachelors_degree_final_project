@@ -3,13 +3,13 @@
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
   <property name="geometry">
-   <rect><x>0</x><y>0</y><width>600</width><height>700</height></rect>
+   <rect><x>0</x><y>0</y><width>1000</width><height>900</height></rect>
   </property>
   <property name="windowTitle">
    <string>Server GUI</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,0,1,0">
+   <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="QGroupBox" name="clientGroupBox">
       <property name="title">
@@ -39,22 +39,52 @@
     <item><widget class="QPushButton" name="resetLogBtn"><property name="text"><string>Reset Log</string></property></widget></item>
     <item><widget class="QPushButton" name="downloadLogBtn"><property name="text"><string>Download Log</string></property></widget></item>
     <item><widget class="QPushButton" name="showDataBtn"><property name="text"><string>Show Data from Client</string></property></widget></item>
+    <item><widget class="QTextEdit" name="databaseTextDisplay"><property name="readOnly"><bool>true</bool></property></widget></item>
+    <item><widget class="QPushButton" name="showChartsBtn"><property name="text"><string>Show Charts</string></property></widget></item>
     <item>
-     <widget class="QTextEdit" name="databaseTextDisplay">
-      <property name="readOnly">
-       <bool>true</bool>
-      </property>
-     </widget>
+     <layout class="QHBoxLayout" name="chartsLayout">
+      <item>
+       <widget class="QGroupBox" name="temperatureChartGroup">
+        <property name="title"><string>Temperature Chart</string></property>
+        <property name="styleSheet"><string notr="true">QGroupBox { background-color: #f0f8ff; border: 2px solid #6495ed; border-radius: 5px; }</string></property>
+        <layout class="QVBoxLayout" name="tempChartLayout">
+         <property name="topMargin">
+          <number>25</number>
+         </property>
+         <item>
+          <widget class="QChartView" name="temperatureChartView">
+           <property name="minimumSize">
+            <size><width>450</width><height>300</height></size>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="aqiChartGroup">
+        <property name="title"><string>AQI Chart</string></property>
+        <property name="styleSheet"><string notr="true">QGroupBox { background-color: #fff0f5; border: 2px solid #db7093; border-radius: 5px; }</string></property>
+        <layout class="QVBoxLayout" name="aqiChartLayout">
+         <property name="topMargin">
+          <number>25</number>
+         </property>
+         <item>
+          <widget class="QChartView" name="aqiChartView">
+           <property name="minimumSize">
+            <size><width>450</width><height>300</height></size>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
     </item>
     <item>
      <layout class="QHBoxLayout" name="serverControlLayout">
       <item><widget class="QPushButton" name="startButton"><property name="text"><string>Start Server</string></property></widget></item>
-      <item>
-       <spacer name="spacer">
-        <property name="orientation"><enum>Qt::Horizontal</enum></property>
-        <property name="sizeHint"><size><width>20</width><height>20</height></size></property>
-       </spacer>
-      </item>
+      <item><spacer name="spacer"><property name="orientation"><enum>Qt::Horizontal</enum></property><property name="sizeHint"><size><width>20</width><height>20</height></size></property></spacer></item>
       <item><widget class="QPushButton" name="shutdownBtn"><property name="text"><string>Shutdown Server</string></property></widget></item>
      </layout>
     </item>

@@ -119,11 +119,9 @@ void Server::shutdown() {
         m_clients.clear();
     }
 
-    std::cout << "Before join" << std::endl;
     closesocket(m_serverSocket);
     if (m_acceptThread.joinable())
         m_acceptThread.join();
-    std::cout << "After join" << std::endl;
     
     emit serverStopped();
     WSACleanup();

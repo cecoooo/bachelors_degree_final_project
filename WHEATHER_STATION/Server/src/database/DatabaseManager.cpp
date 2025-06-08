@@ -1,6 +1,5 @@
 #include "DatabaseManager.hpp"
 #include <iostream>
-#include <functional>
 
 DatabaseManager::DatabaseManager() : m_env(nullptr), m_dbc(nullptr) {
     SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &m_env);
@@ -82,7 +81,7 @@ bool DatabaseManager::insertNotification(int socketId, double lat, double lon, i
     if (!executePrepared(sql, [&](SQLHSTMT stmt) {
         SQLBindParameter(stmt, 1, SQL_PARAM_INPUT, SQL_C_DOUBLE, SQL_DOUBLE, 0, 0, &lat, 0, nullptr);
         SQLBindParameter(stmt, 2, SQL_PARAM_INPUT, SQL_C_DOUBLE, SQL_DOUBLE, 0, 0, &lon, 0, nullptr);
-        SQLBindParameter(stmt, 3, SQL_PARAM_INPUT, SQL_C_DOUBLE, SQL_DOUBLE, 0, 0, &temp, 0, nullptr);
+        SQLBindParameter(stmt, 3, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, &temp, 0, nullptr);
         SQLBindParameter(stmt, 4, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, &aqi, 0, nullptr);
         SQLBindParameter(stmt, 5, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, &socketId, 0, nullptr);
     })) {
@@ -154,4 +153,60 @@ void DatabaseManager::printError(SQLSMALLINT handleType, SQLHANDLE handle) {
         std::cerr << "ODBC Error: " << msg << " (SQLState: " << sqlState << ")" << std::endl;
         break;
     }
+}
+
+std::vector<std::pair<float, int>> DatabaseManager::fetchLastNotificationData(int clientId, int maxEntries) {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    std::vector<std::pair<float, int>> result;
+
+    SQLHSTMT stmt;
+    SQLAllocHandle(SQL_HANDLE_STMT, m_dbc, &stmt);
+
+    std::string query = "SELECT TOP " + std::to_string(maxEntries) +
+                         " temperature, AQI FROM dbo.NOTIFICATED_RECORDINGS WHERE ClientID = ? ORDER BY ID DESC";
+    SQLPrepareA(stmt, (SQLCHAR*)query.c_str(), SQL_NTS);
+    SQLBindParameter(stmt, 1, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, &clientId, 0, nullptr);
+
+    SQLRETURN ret = SQLExecute(stmt);
+    if (!SQL_SUCCEEDED(ret)) {
+        printError(SQL_HANDLE_STMT, stmt);
+        SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+        throw std::runtime_error("Failed to execute SELECT for chart data.");
+    }
+
+    float temp;
+    int aqi;
+    SQLBindCol(stmt, 1, SQL_C_FLOAT, &temp, 0, nullptr);
+    SQLBindCol(stmt, 2, SQL_C_LONG, &aqi, 0, nullptr);
+
+    while (SQLFetch(stmt) == SQL_SUCCESS) {
+        result.emplace_back(temp, aqi);
+    }
+
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    std::reverse(result.begin(), result.end());
+    return result;
+}
+
+void DatabaseManager::clearAllData() {
+    SQLHSTMT stmt;
+    SQLAllocHandle(SQL_HANDLE_STMT, m_dbc, &stmt);
+
+    const char* deleteRequested = "DELETE FROM dbo.REQUESTED_RECORDINGS";
+    const char* deleteNotified = "DELETE FROM dbo.NOTIFICATED_RECORDINGS";
+    const char* deleteClients = "DELETE FROM dbo.CLIENTS";
+
+    if (!SQL_SUCCEEDED(SQLExecDirectA(stmt, (SQLCHAR*)deleteRequested, SQL_NTS))) {
+        printError(SQL_HANDLE_STMT, stmt);
+    }
+
+    if (!SQL_SUCCEEDED(SQLExecDirectA(stmt, (SQLCHAR*)deleteNotified, SQL_NTS))) {
+        printError(SQL_HANDLE_STMT, stmt);
+    }
+
+    if (!SQL_SUCCEEDED(SQLExecDirectA(stmt, (SQLCHAR*)deleteClients, SQL_NTS))) {
+        printError(SQL_HANDLE_STMT, stmt);
+    }
+
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
 }

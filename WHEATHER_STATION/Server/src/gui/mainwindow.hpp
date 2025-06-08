@@ -1,6 +1,12 @@
 #pragma once
 
 #include <QMainWindow>
+#include <QtCharts/QChartView>
+#include <QtCharts/QLineSeries>
+#include <QtCharts/QValueAxis>
+#include <QDebug>
+#include <QTimer>
+
 #include "Server.hpp"
 
 QT_BEGIN_NAMESPACE
@@ -24,6 +30,7 @@ private slots:
     void onShutdownServer();
     void onStartServer();
     void onShowClientDataClicked();
+    void onShowChartsClicked();
 
 private:
     Ui::MainWindow* ui;
@@ -31,4 +38,23 @@ private:
     QThread* m_serverThread;
 
     int getSelectedClientSocket();
+
+    void setupCharts();
+    void updateCharts();
+
+    QLineSeries *m_tempSeries;
+    QLineSeries *m_aqiSeries;
+    QChart *m_tempChart;
+    QChart *m_aqiChart;
+    QChartView *m_tempChartView;
+    QChartView *m_aqiChartView;
+    QValueAxis *m_xAxisTemp;
+    QValueAxis *m_yAxisTemp;
+    QValueAxis *m_xAxisAQI;
+    QValueAxis *m_yAxisAQI;
+
+    QTimer* m_chartUpdateTimer;
+    int m_currentChartClientId;
+
+    int m_chartUpdateCounter = 0;  // Used as X-axis
 };

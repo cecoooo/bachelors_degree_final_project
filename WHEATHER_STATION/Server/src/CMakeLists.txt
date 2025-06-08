@@ -4,7 +4,7 @@ project(WeatherStationServer)
 set(CMAKE_CXX_STANDARD 17)
 
 # Qt6
-find_package(Qt6 REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Charts)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
@@ -36,6 +36,7 @@ target_include_directories(ServerGUI PRIVATE
 # Link libraries
 target_link_libraries(ServerGUI PRIVATE
     Qt6::Widgets
+    Qt6::Charts
     odbc32
     ws2_32
     crypt32
@@ -45,40 +46,3 @@ target_link_libraries(ServerGUI PRIVATE
 )
 
 target_compile_definitions(ServerGUI PRIVATE NOMINMAX)
-
-
-
-
-
-
-
-
-
-
-
-# cmake_minimum_required(VERSION 3.16)
-# project(WeatherStationServer)
-
-# set(CMAKE_CXX_STANDARD 17)
-
-# # Qt6 setup
-# find_package(Qt6 REQUIRED COMPONENTS Widgets)
-
-# set(CMAKE_AUTOMOC ON)
-# set(CMAKE_AUTOUIC ON)
-# set(CMAKE_AUTORCC ON)
-
-# # Collect files
-# file(GLOB_RECURSE SOURCES "source/*.cpp" "gui/*.cpp" "main.cpp")
-# file(GLOB_RECURSE HEADERS "include/*.hpp" "gui/*.hpp")
-# file(GLOB UI_FILES "gui/*.ui")
-
-# # Create the executable
-# add_executable(ServerGUI ${SOURCES} ${HEADERS} ${UI_FILES})
-
-# # Includes
-# target_include_directories(ServerGUI PRIVATE include gui)
-
-# # Link Qt6
-# target_link_libraries(ServerGUI PRIVATE Qt6::Widgets)
-# target_link_libraries(ServerGUI PRIVATE ws2_32)
