@@ -9,6 +9,60 @@
    <string>Server GUI</string>
   </property>
   <widget class="QWidget" name="centralwidget">
+   <property name="styleSheet">
+    <string notr="true">
+     QWidget {
+         background-color: #f8fafd;
+         font-family: "Segoe UI", sans-serif;
+         font-size: 10pt;
+     }
+
+     QGroupBox {
+         border: 2px solid #8fbc8f;
+         border-radius: 6px;
+         margin-top: 20px;
+         background-color: #eef9f2;
+     }
+
+     QGroupBox::title {
+         subcontrol-origin: margin;
+         subcontrol-position: top center;
+         padding: 0 6px;
+         color: #2e8b57;
+         font-weight: bold;
+         background-color: transparent;
+     }
+
+     QPushButton {
+         background-color: #4f83cc;
+         color: white;
+         padding: 6px 12px;
+         border-radius: 5px;
+         border: none;
+     }
+
+     QPushButton:hover {
+         background-color: #3b6aa0;
+     }
+
+     QPushButton:pressed {
+         background-color: #2d4f7a;
+     }
+
+     QLineEdit, QTextEdit {
+         border: 1px solid #ccc;
+         border-radius: 4px;
+         padding: 4px;
+         background-color: #ffffff;
+     }
+
+     QListWidget {
+         border: 1px solid #aaa;
+         border-radius: 4px;
+         background-color: #ffffff;
+     }
+    </string>
+   </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="QGroupBox" name="clientGroupBox">
@@ -46,15 +100,22 @@
       <item>
        <widget class="QGroupBox" name="temperatureChartGroup">
         <property name="title"><string>Temperature Chart</string></property>
-        <property name="styleSheet"><string notr="true">QGroupBox { background-color: #f0f8ff; border: 2px solid #6495ed; border-radius: 5px; }</string></property>
+        <property name="styleSheet">
+         <string notr="true">
+         QGroupBox { background-color: #e8f4fc; border: 2px solid #5ba4e5; border-radius: 8px; margin-top: 30px; }
+         QGroupBox::title { color: #1a5276; font-weight: bold; padding: 8px; }
+         </string>
+        </property>
         <layout class="QVBoxLayout" name="tempChartLayout">
-         <property name="topMargin">
-          <number>25</number>
-         </property>
+         <property name="topMargin"><number>10</number></property>
          <item>
           <widget class="QChartView" name="temperatureChartView">
-           <property name="minimumSize">
-            <size><width>450</width><height>300</height></size>
+           <property name="minimumSize"><size><width>450</width><height>300</height></size></property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>1</horstretch>
+             <verstretch>1</verstretch>
+            </sizepolicy>
            </property>
           </widget>
          </item>
@@ -64,15 +125,22 @@
       <item>
        <widget class="QGroupBox" name="aqiChartGroup">
         <property name="title"><string>AQI Chart</string></property>
-        <property name="styleSheet"><string notr="true">QGroupBox { background-color: #fff0f5; border: 2px solid #db7093; border-radius: 5px; }</string></property>
+        <property name="styleSheet">
+         <string notr="true">
+         QGroupBox { background-color: #ffe6f0; border: 2px solid #d36c96; border-radius: 8px; margin-top: 30px; }
+         QGroupBox::title { color: #9b2f56; font-weight: bold; padding: 8px; }
+         </string>
+        </property>
         <layout class="QVBoxLayout" name="aqiChartLayout">
-         <property name="topMargin">
-          <number>25</number>
-         </property>
+         <property name="topMargin"><number>10</number></property>
          <item>
           <widget class="QChartView" name="aqiChartView">
-           <property name="minimumSize">
-            <size><width>450</width><height>300</height></size>
+           <property name="minimumSize"><size><width>450</width><height>300</height></size></property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>1</horstretch>
+             <verstretch>1</verstretch>
+            </sizepolicy>
            </property>
           </widget>
          </item>
