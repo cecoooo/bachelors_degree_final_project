@@ -12,13 +12,13 @@ set(CMAKE_AUTORCC ON)
 
 # Source files
 file(GLOB_RECURSE SOURCES 
-    "source/*.cpp" 
+    "controller/source/*.cpp" 
     "gui/*.cpp" 
     "database/*.cpp" 
     "main.cpp"
 )
 file(GLOB_RECURSE HEADERS 
-    "include/*.hpp" 
+    "controller/include/*.hpp" 
     "gui/*.hpp" 
     "database/*.hpp"
 )
@@ -28,7 +28,7 @@ add_executable(ServerGUI ${SOURCES} ${HEADERS} ${UI_FILES})
 
 # Include directories
 target_include_directories(ServerGUI PRIVATE
-    include
+    controller/include
     gui
     database
 )

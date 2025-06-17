@@ -1,7 +1,3 @@
-//
-// Created by hristogarkov on 4/21/24.
-//
-
 #include "FileManager.hpp"
 #include "MutexGuard.hpp"
 #include "FileOpeningException.hpp"

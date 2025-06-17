@@ -1,7 +1,3 @@
-//
-// Created by hristogarkov on 4/22/24.
-//
-
 #ifndef BOSCH_PROJECT_REMOVECLIENT_H
 #define BOSCH_PROJECT_REMOVECLIENT_H
 

@@ -57,7 +57,6 @@ void ClientConnection::saveMeasurement(const ClientData& data, bool isInitialDat
                  << data.aqi << "/" << data.temperature << std::endl;
     if(isInitialData) m_outputFile << "=================" << std::endl;
     m_outputFile.close();
-    // FOR DB
 
     if(!g_dbManager.insertNotification(static_cast<int>(m_socket), data.latitude, data.longitude, data.temperature, data.aqi))
     {
@@ -90,8 +89,6 @@ ReceiveResult ClientConnection::receiveData() {
     std::string message(buffer, 0, ret);
 
     if (message == "exit") {
-        // char dummy[4];
-        // recv(m_socket, dummy, 4, 0);  // consume "exit"
         result.exitRequested = true;
         return result;
     }
@@ -99,8 +96,6 @@ ReceiveResult ClientConnection::receiveData() {
         return result;
     }
     if (message == "1") {
-        // char dummy[1];
-        // recv(m_socket, dummy, 1, 0);
         result.exitRequested = true;
         return result;
     }
@@ -140,7 +135,6 @@ ReceiveResult ClientConnection::receiveData() {
             }
             
             send(m_socket, buffer, sizeof(buffer), 0);
-            // FOR DB
         }
 
         m_outputFile.close();

@@ -1,7 +1,3 @@
-//
-// Created by hristogarkov on 5/2/24.
-//
-
 #ifndef BOSCH_PROJECT_FILEOPENINGEXCEPTION_H
 #define BOSCH_PROJECT_FILEOPENINGEXCEPTION_H
 

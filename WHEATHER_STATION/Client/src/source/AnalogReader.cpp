@@ -1,7 +1,3 @@
-//
-// Created by hristogarkov on 4/22/24.
-//
-
 #include "AnalogReader.hpp"
 #include "AnalogSensorException.hpp"
 

@@ -1,6 +1,3 @@
-//
-// Created by hristogarkov on 5/1/24.
-//
 #include <ctime>
 #include <chrono>
 

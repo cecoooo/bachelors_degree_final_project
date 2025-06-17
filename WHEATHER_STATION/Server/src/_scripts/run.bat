@@ -20,23 +20,3 @@ if exist ServerGUI.exe (
 
 :end
 endlocal
-
-
-
-
-@REM @echo off
-@REM setlocal
-
-@REM REM Navigate to build folder
-@REM cd ../../build
-
-@REM REM Check if ServerGUI.exe exists and run it
-@REM if exist ServerGUI.exe (
-@REM     echo Running ServerGUI.exe ...
-@REM     ServerGUI.exe
-@REM ) else (
-@REM     echo ServerGUI.exe not found. Make sure the project is built.
-@REM )
-
-@REM :end
-@REM endlocal

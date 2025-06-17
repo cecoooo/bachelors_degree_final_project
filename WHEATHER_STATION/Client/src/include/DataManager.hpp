@@ -1,7 +1,3 @@
-//
-// Created by hristogarkov on 4/20/24.
-//
-
 #ifndef BOSCH_ACADEMY_DATAREADER_H
 #define BOSCH_ACADEMY_DATAREADER_H
 

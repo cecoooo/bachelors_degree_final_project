@@ -5,21 +5,11 @@
 #include <fstream>
 #include <atomic>
 #include <mutex>
-// detede #include <iostream> after all tests
 #include <iostream>
 #include <QByteArray>
 
 #include "DatabaseGlobal.hpp"
-
-
-#pragma pack(push, 1)
-struct ClientData {
-    double latitude;
-    double longitude;
-    short aqi;
-    short temperature;
-};
-#pragma pack(pop)
+#include "ClientData.hpp"
 
 struct ReceiveResult {
     bool exitRequested = false;

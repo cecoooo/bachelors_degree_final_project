@@ -6,7 +6,7 @@
    <rect><x>0</x><y>0</y><width>1000</width><height>900</height></rect>
   </property>
   <property name="windowTitle">
-   <string>Server GUI</string>
+   <string>WHEATHER STATION FOR AIR POLLUTION SERVER</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="styleSheet">

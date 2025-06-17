@@ -1,7 +1,3 @@
-//
-// Created by hristogarkov on 4/19/24.
-//
-
 #include <thread>
 
 #include "ServerConnection.hpp"

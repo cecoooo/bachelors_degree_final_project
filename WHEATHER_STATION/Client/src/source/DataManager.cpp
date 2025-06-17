@@ -1,6 +1,3 @@
-//
-// Created by hristogarkov on 4/20/24.
-//
 #include <cstring>
 #include <chrono>
 #include <thread>

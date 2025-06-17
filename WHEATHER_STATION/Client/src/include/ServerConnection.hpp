@@ -1,7 +1,3 @@
-//
-// Created by hristogarkov on 4/19/24.
-//
-
 #ifndef BOSCH_ACADEMY_SERVERCONNECTION_H
 #define BOSCH_ACADEMY_SERVERCONNECTION_H
 

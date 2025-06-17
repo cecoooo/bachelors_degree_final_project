@@ -1,7 +1,3 @@
-//
-// Created by hristogarkov on 4/21/24.
-//
-
 #ifndef BOSCH_PROJECT_FILEMANAGER_H
 #define BOSCH_PROJECT_FILEMANAGER_H
 

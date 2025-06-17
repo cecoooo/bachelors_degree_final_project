@@ -23,6 +23,7 @@ REM ---- Create and enter build directory ----
 mkdir %BUILD_DIR%
 cd %BUILD_DIR%
 
+set QTFRAMEWORK_BYPASS_LICENSE_CHECK=1
 REM ---- Run CMake configuration ----
 cmake ../src -G "%GENERATOR%" -DCMAKE_PREFIX_PATH="%QT_PATH%/lib/cmake" -DCMAKE_BUILD_TYPE=Release
 
